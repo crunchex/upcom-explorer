@@ -1,0 +1,140 @@
+.upcom-explorer {
+    height: 100%;
+    background-color: #eaecec;
+}
+
+.explorer-placeholder {
+    color: #7e7e7e;
+    padding: 100% 10px;
+    text-align: center;
+    height: 100%;
+    margin: 0;
+    /*font-family: "Avenir Next LT Pro Regular";*/
+    font-family:  "Monosten A", monospace;
+}
+
+.exp-container {
+    background-color: #eaecec;
+    height: calc(100% - 32px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: none;
+}
+
+.explorer-ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.explorer-li {
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+.exp-container > .explorer-ul {
+    padding: 5px;
+    height: 100%;
+}
+
+.exp-container > .explorer-ul > .explorer-li {
+    margin-left: 0;
+}
+
+.explorer-fs-outer-container,
+.explorer-fs-container {
+    padding: 2px;
+    color: #0c0c0c;
+}
+
+.explorer-ros-outer-container,
+.explorer-ros-container {
+    padding: 2px;
+    color: #0c0c0c;
+}
+
+.explorer-fs-container.explorer-folder,
+.explorer-ros-container.explorer-package {
+    display: inline;
+}
+
+.explorer-fs-container,
+.explorer-ros-container {
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+}
+
+.explorer-fs-container.selected,
+.explorer-ros-container.selected {
+    background-color: #ff2919;
+    color: #ffffff;
+}
+
+.explorer-arg-name {
+    position: relative;
+    bottom: -2px;
+    left: 6px;
+    font-family: "Avenir Next LT Pro Regular";
+    font-size: 10px;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+}
+
+.explorer-arg-input {
+    width: 100%;
+    margin-left: 0;
+    font-family: "Avenir Next LT Pro Regular";
+    font-size: 12px;
+}
+
+.explorer-expander-icon,
+.explorer-icon {
+    display: inline;
+    position: relative;
+    top: 2px;
+    margin-right: 3px;
+}
+
+.explorer-fs-container.explorer-file {
+    margin-left: 19px;
+}
+
+.explorer-fs-name,
+.explorer-ros-name {
+    display: inline;
+    font-family: "Avenir Next LT Pro Regular";
+    font-size: 12px;
+    margin-left: 3px;
+}
+
+.toolbar {
+    width: 100%;
+    padding: 5px;
+    vertical-align: middle;
+    border-top: 1px solid #e3e3e3;
+}
+
+.toolbar>span {
+    float: right;
+    padding: 0 5px 0 5px;
+}
+
+.toolbar>span.inactive {
+    color: #7e7e7e;
+}
+
+.toolbar>span.glyphicons-folder-open {
+    top: -0.5px;
+}
+
+/* Animation */
+
+.glyphicons-refresh {
+    -webkit-animation:spin 1.5s linear infinite;
+    -moz-animation:spin 1.5s linear infinite;
+    animation:spin 1.5s linear infinite;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
