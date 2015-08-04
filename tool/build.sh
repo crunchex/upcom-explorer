@@ -11,9 +11,6 @@ command -v pub >/dev/null 2>&1 || {
 	exit 1;
 }
 
-# Get extra assets
-$TOPDIR/tool/build_cmdr_pty.sh
-
 # Build front-end -> build/web
 cd $TOPDIR
 pub get
@@ -24,10 +21,6 @@ BUILDBIN=$TOPDIR/build/bin
 mkdir -p $BUILDBIN
 dart2js --output-type=dart --categories=Server --minify -o $BUILDBIN/main.dart $TOPDIR/bin/main.dart
 rm -rf $BUILDBIN/main.dart.deps
-
-GO_UPDROID_PATH=${GOPATH:?"Need to set GOPATH non-empty"}/src/github.com/updroidinc
-GO_CMDRPTY_PATH=$GO_UPDROID_PATH/cmdr-pty
-cp $GO_CMDRPTY_PATH/cmdr-pty $BUILDBIN/cmdr-pty
 
 # Copy over panelinfo.json -> build/bin
 cp $TOPDIR/lib/panelinfo.json $BUILDBIN
