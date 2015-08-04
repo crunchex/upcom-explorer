@@ -6,8 +6,8 @@ import 'dart:convert';
 
 import 'package:upcom-api/web/modal/modal.dart';
 import 'package:upcom-api/web/mailbox/mailbox.dart';
+import 'package:upcom-api/web/tab/panel_controller.dart';
 
-import '../panel_controller.dart';
 import 'workspace/workspace_controller.dart';
 import 'launchers/launchers_controller.dart';
 
@@ -16,6 +16,8 @@ part 'explorer_view.dart';
 /// [UpDroidConsole] is a client-side class that combines a [Terminal]
 /// and [WebSocket] into an UpDroid Commander tab.
 class UpDroidExplorer extends PanelController {
+  static final List<String> names = ['upcom-explorer', 'UpDroid Explorer', 'Explorer'];
+
   static List getMenuConfig() {
     List menu = [
       {'title': 'File', 'items': [
@@ -65,8 +67,8 @@ class UpDroidExplorer extends PanelController {
 
   List<String> _workspaceNames;
 
-  UpDroidExplorer(int id, int col) :
-  super(id, col, 'upcom-explorer', 'UpDroid Explorer', 'Explorer', getMenuConfig(), true) {
+  UpDroidExplorer() :
+  super(UpDroidExplorer.names, getMenuConfig(), 'tabs/upcom-explorer/explorer.css') {
 
   }
 
@@ -250,10 +252,16 @@ class UpDroidExplorer extends PanelController {
     controller = new LaunchersController(id, workspacePath, view, mailbox, actionButtons, showWorkspacesController);
   }
 
-  //\/\/ Handler Helpers /\/\//
+  // TODO: figure this out once the view is set up correctly.
+  Element get elementToFocus => view.content.children[0];
+
+  Future<bool> preClose() {
+    Completer c = new Completer();
+    c.complete(true);
+    return c.future;
+  }
 
   void cleanUp() {
-
     if (_fileDropdownListener != null) _fileDropdownListener.cancel();
     if (_newWorkspaceListener != null) _newWorkspaceListener.cancel();
     if (_closeWorkspaceListener != null) _closeWorkspaceListener.cancel();
