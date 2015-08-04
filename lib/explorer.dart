@@ -2,23 +2,20 @@ library cmdr_explorer;
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:convert';
+
 import 'package:watcher/watcher.dart';
 import 'package:path/path.dart' as pathLib;
 import 'package:upcom-api/ros.dart';
 import 'package:upcom-api/tab_backend.dart';
 import 'package:upcom-api/debug.dart';
 
-import '../server_mailbox.dart';
-import '../post_office.dart';
-
-class CmdrExplorer {
-  static const String refName = 'upcom-explorer';
+class CmdrExplorer extends Panel {
+  static final List<String> names = ['upcom-explorer', 'UpDroid Explorer', 'Explorer'];
   static const String editorRefName = 'upcom-editor';
   static const String buildLogPath = '/var/log/updroid/build.log';
 
-  int id;
-  CmdrMailbox mailbox;
   Directory uproot;
 
   Workspace _currentWorkspace;
@@ -27,13 +24,10 @@ class CmdrExplorer {
   bool _warningIssued;
 
   //TODO: make asynchroneous
-  CmdrExplorer(this.id, this.uproot) {
-    if (_currentWorkspace != null) return;
-
+  CmdrExplorer(SendPort sp, List args) :
+  super(CmdrExplorer.names, sp, args) {
+    uproot = new Directory(args[2]);
     _warningIssued = false;
-
-    mailbox = new CmdrMailbox(refName, id);
-    _registerMailbox();
 
     // TODO: retrieve saved data for the most recently opened workspace.
     // TODO: handle changes to uproot made on the server side.
@@ -43,33 +37,33 @@ class CmdrExplorer {
 //    });
   }
 
-  void _registerMailbox() {
-    mailbox.registerWebSocketEvent('REQUEST_WORKSPACE_CONTENTS', _sendWorkspaceSync);
-    mailbox.registerWebSocketEvent('REQUEST_WORKSPACE_PATH', _getPath);
-    mailbox.registerWebSocketEvent('REQUEST_WORKSPACE_NAMES', _sendWorkspaceNames);
-    mailbox.registerWebSocketEvent('NEW_WORKSPACE', _newWorkspace);
-    mailbox.registerWebSocketEvent('SET_CURRENT_WORKSPACE', _setWorkspace);
-    mailbox.registerWebSocketEvent('NEW_FILE', _fsNewFile);
-    mailbox.registerWebSocketEvent('NEW_FOLDER', _fsNewFolder);
-    mailbox.registerWebSocketEvent('RENAME', _fsRename);
-    mailbox.registerWebSocketEvent('DELETE', _fsDelete);
-    mailbox.registerWebSocketEvent('OPEN_FILE', _openFile);
-    mailbox.registerWebSocketEvent('WORKSPACE_CLEAN', _workspaceClean);
-    mailbox.registerWebSocketEvent('WORKSPACE_BUILD', _buildWorkspace);
-    mailbox.registerWebSocketEvent('CLEAN_PACKAGE', _cleanPackage);
-    mailbox.registerWebSocketEvent('BUILD_PACKAGE', _buildPackage);
-    mailbox.registerWebSocketEvent('BUILD_PACKAGES', _buildPackages);
-    mailbox.registerWebSocketEvent('CREATE_PACKAGE', _createPackage);
-    mailbox.registerWebSocketEvent('REQUEST_NODE_LIST', _launcherList);
-    mailbox.registerWebSocketEvent('RUN_NODE', _runLauncher);
-    mailbox.registerWebSocketEvent('REQUEST_EDITOR_LIST', _requestEditorList);
-    mailbox.registerWebSocketEvent('RETURN_SELECTED', _returnSelected);
+  void registerMailbox() {
+    mailbox.registerMessageHandler('REQUEST_WORKSPACE_CONTENTS', _sendWorkspaceSync);
+    mailbox.registerMessageHandler('REQUEST_WORKSPACE_PATH', _getPath);
+    mailbox.registerMessageHandler('REQUEST_WORKSPACE_NAMES', _sendWorkspaceNames);
+    mailbox.registerMessageHandler('NEW_WORKSPACE', _newWorkspace);
+    mailbox.registerMessageHandler('SET_CURRENT_WORKSPACE', _setWorkspace);
+    mailbox.registerMessageHandler('NEW_FILE', _fsNewFile);
+    mailbox.registerMessageHandler('NEW_FOLDER', _fsNewFolder);
+    mailbox.registerMessageHandler('RENAME', _fsRename);
+    mailbox.registerMessageHandler('DELETE', _fsDelete);
+    mailbox.registerMessageHandler('OPEN_FILE', _openFile);
+    mailbox.registerMessageHandler('WORKSPACE_CLEAN', _workspaceClean);
+    mailbox.registerMessageHandler('WORKSPACE_BUILD', _buildWorkspace);
+    mailbox.registerMessageHandler('CLEAN_PACKAGE', _cleanPackage);
+    mailbox.registerMessageHandler('BUILD_PACKAGE', _buildPackage);
+    mailbox.registerMessageHandler('BUILD_PACKAGES', _buildPackages);
+    mailbox.registerMessageHandler('CREATE_PACKAGE', _createPackage);
+    mailbox.registerMessageHandler('REQUEST_NODE_LIST', _launcherList);
+    mailbox.registerMessageHandler('RUN_NODE', _runLauncher);
+    mailbox.registerMessageHandler('REQUEST_EDITOR_LIST', _requestEditorList);
+    mailbox.registerMessageHandler('RETURN_SELECTED', _returnSelected);
 
-    mailbox.registerServerMessageHandler('SEND_EDITOR_LIST', _sendEditorList);
-    mailbox.registerServerMessageHandler('REQUEST_SELECTED', _getSelected);
+    mailbox.registerMessageHandler('SEND_EDITOR_LIST', _sendEditorList);
+    mailbox.registerMessageHandler('REQUEST_SELECTED', _getSelected);
   }
 
-  void _sendWorkspaceSync(Msg um) {
+  void _sendWorkspaceSync(String um) {
     if (_currentWatcher == null) {
       _currentWatcher = new DirectoryWatcher(_currentWorkspace.src.path);
       _currentWatcherStream = _currentWatcher.events.listen((e) => _formattedFsUpdate(e));
@@ -79,9 +73,9 @@ class CmdrExplorer {
     files.forEach((String file) => mailbox.send(new Msg('ADD_UPDATE', file)));
   }
 
-  void _getPath(Msg um) => _sendPath();
+  void _getPath(String um) => _sendPath();
 
-  void _sendWorkspaceNames(Msg um) {
+  void _sendWorkspaceNames(String um) {
     List<String> names = [];
     uproot
         .list()
@@ -90,8 +84,8 @@ class CmdrExplorer {
         .onDone(() => mailbox.send(new Msg('WORKSPACE_NAMES', JSON.encode(names))));
   }
 
-  void _newWorkspace(Msg um) {
-    String data = um.body;
+  void _newWorkspace(String um) {
+    String data = um;
     Workspace newWorkspace = new Workspace('${uproot.path}/$data');
     newWorkspace.create().then((Workspace workspace) {
       workspace.initSync();
@@ -99,10 +93,10 @@ class CmdrExplorer {
     });
   }
 
-  void _setWorkspace(Msg um) => _setCurrentWorkspace(um.body);
+  void _setWorkspace(String um) => _setCurrentWorkspace(um);
 
-  void _fsNewFile(Msg um) {
-    String path = um.body;
+  void _fsNewFile(String um) {
+    String path = um;
     String fullPath = pathLib.join(path + '/untitled.py');
     File newFile = new File(fullPath);
 
@@ -116,8 +110,8 @@ class CmdrExplorer {
     newFile.create();
   }
 
-  void _fsNewFolder(Msg um) {
-    String path = um.body;
+  void _fsNewFolder(String um) {
+    String path = um;
     String fullPath = path;
     Directory newFolder = new Directory(fullPath);
 
@@ -131,8 +125,8 @@ class CmdrExplorer {
     newFolder.createSync();
   }
 
-  void _fsRename(Msg um) {
-    String data = um.body;
+  void _fsRename(String um) {
+    String data = um;
     List<String> split = data.split(':');
     String oldPath = split[0];
     String newPath = split[1];
@@ -150,8 +144,8 @@ class CmdrExplorer {
     });
   }
 
-  void _fsDelete(Msg um) {
-    String path = um.body;
+  void _fsDelete(String um) {
+    String path = um;
     FileSystemEntity entity;
     bool isDir = FileSystemEntity.isDirectorySync(path);
 
@@ -163,21 +157,21 @@ class CmdrExplorer {
     if (isDir) mailbox.send(new Msg('REMOVE_UPDATE', 'D:$path'));
   }
 
-  void _openFile(Msg um) {
+  void _openFile(String um) {
     int destinationId = -1;
-    Msg newMessage = um;
+    Msg newMessage = new Msg('OPEN_FILE', um);
 
     // Need to tell a specific UpDroidEditor to open the path.
-    if (!um.body.startsWith('/')) {
-      List<String> split = um.body.split(':');
+    if (!um.startsWith('/')) {
+      List<String> split = um.split(':');
       destinationId = int.parse(split[0]);
-      newMessage = new Msg(um.header, split[1]);
+      newMessage = new Msg('OPEN_FILE', split[1]);
     }
 
-    CmdrPostOffice.send(new ServerMessage(refName, id, editorRefName, destinationId, newMessage));
+    mailbox.relay(editorRefName, destinationId, newMessage);
   }
 
-  void _workspaceClean(Msg um) {
+  void _workspaceClean(String um) {
     _currentWorkspace.cleanWorkspace().then((result) {
       mailbox.send(new Msg('WORKSPACE_CLEAN', ''));
     });
@@ -212,7 +206,7 @@ class CmdrExplorer {
         warningText += '\nLog out and back in (or restart session) for changes to take effect.';
 
         Msg alertMsg = new Msg('ISSUE_ALERT', warningText);
-        CmdrPostOffice.send(new ServerMessage(refName, id, Tab.upcomName, 1, alertMsg));
+        mailbox.relay(Tab.upcomName, 1, alertMsg);
         _warningIssued = true;
       }
 
@@ -222,7 +216,7 @@ class CmdrExplorer {
     return null;
   }
 
-  void _buildWorkspace(Msg um) {
+  void _buildWorkspace(String um) {
     IOSink sink = _getBuildLogSink();
 
     _currentWorkspace.buildWorkspace().listen((data) {
@@ -238,8 +232,8 @@ class CmdrExplorer {
       });
   }
 
-  void _cleanPackage(Msg um) {
-    String packagePath = um.body;
+  void _cleanPackage(String um) {
+    String packagePath = um;
     String packageName = packagePath.split('/').last;
 
     _currentWorkspace.cleanPackage(packageName).then((result) {
@@ -247,8 +241,8 @@ class CmdrExplorer {
     });
   }
 
-  void _buildPackage(Msg um) {
-    String packagePath = um.body;
+  void _buildPackage(String um) {
+    String packagePath = um;
     String packageName = packagePath.split('/').last;
 
     IOSink sink = _getBuildLogSink();
@@ -266,8 +260,8 @@ class CmdrExplorer {
       });
   }
 
-  void _buildPackages(Msg um) {
-    String data = um.body;
+  void _buildPackages(String um) {
+    String data = um;
     List<String> packagePaths = JSON.decode(data);
 
     List<String> packageNames = [];
@@ -289,8 +283,8 @@ class CmdrExplorer {
       });
   }
 
-  void _createPackage(Msg um) {
-    List<String> split = um.body.split(':');
+  void _createPackage(String um) {
+    List<String> split = um.split(':');
     String name = split[0];
 
     List<String> dependencies = JSON.decode(split[1]);
@@ -306,15 +300,15 @@ class CmdrExplorer {
     });
   }
 
-  void _launcherList(Msg um) {
+  void _launcherList(String um) {
     _currentWorkspace.listLaunchers().listen((Map launcher) {
       String data = JSON.encode(launcher);
       mailbox.send(new Msg('LAUNCH', data));
     });
   }
 
-  void _runLauncher(Msg um) {
-    String data = um.body;
+  void _runLauncher(String um) {
+    String data = um;
     List decodedData = JSON.decode(data);
     String packageName = decodedData[0];
     String nodeName = decodedData[1];
@@ -323,22 +317,22 @@ class CmdrExplorer {
     _currentWorkspace.runNode(packageName, nodeName, nodeArgs);
   }
 
-  void _requestEditorList(Msg um) {
-    Msg messageWithSender = new Msg('REQUEST_EDITOR_LIST', '${refName}:$id:${um.body}');
-    CmdrPostOffice.send(new ServerMessage(refName, id, Tab.upcomName, 0, messageWithSender));
+  void _requestEditorList(String um) {
+    Msg messageWithSender = new Msg('REQUEST_EDITOR_LIST', '${refName}:$id:${um}');
+    mailbox.relay(Tab.upcomName, 0, messageWithSender);
   }
 
-  void _returnSelected(Msg um) {
-    List<String> split = um.body.split(':');
+  void _returnSelected(String um) {
+    List<String> split = um.split(':');
     int editorId = int.parse(split[0]);
     String selectedList = split[1];
 
-    Msg newMessage = new Msg(um.header, selectedList);
-    CmdrPostOffice.send(new ServerMessage(refName, id, editorRefName, editorId, newMessage));
+    Msg newMessage = new Msg('RETURN_SELECTED', selectedList);
+    mailbox.relay(editorRefName, editorId, newMessage);
   }
 
-  void _sendEditorList(Msg um) => mailbox.send(um);
-  void _getSelected(Msg um) => mailbox.send(um);
+  void _sendEditorList(String um) => mailbox.send(new Msg('SEND_EDITOR_LIST', um));
+  void _getSelected(String um) => mailbox.send(new Msg('REQUEST_SELECTED', um));
 
   /// Convenience method for adding a formatted filesystem update to the socket
   /// stream.
@@ -358,7 +352,7 @@ class CmdrExplorer {
 
   void _setCurrentWorkspace(String newWorkspaceName) {
     Msg um = new Msg('SET_CURRENT_WORKSPACE', newWorkspaceName);
-    CmdrPostOffice.send(new ServerMessage(refName, id, editorRefName, 0, um));
+    mailbox.relay(editorRefName, 0, um);
 
     if (_currentWatcherStream != null) _currentWatcherStream.cancel();
 
@@ -373,7 +367,6 @@ class CmdrExplorer {
   }
 
   void cleanup() {
-    CmdrPostOffice.deregisterStream(refName, id);
     _currentWatcherStream.cancel();
   }
 }
