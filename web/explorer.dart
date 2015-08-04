@@ -24,9 +24,9 @@ class UpDroidExplorer extends PanelController {
         {'type': 'toggle', 'title': 'New Package'},
         {'type': 'divider', 'title': ''},
         {'type': 'toggle', 'title': 'New Workspace'},
-        {'type': 'submenu', 'title': 'Open Workspace', 'items': []}]},
+        {'type': 'submenu', 'title': 'Open Workspace', 'items': []},
 //        {'type': 'toggle', 'title': 'Close Workspace'}]},
-//        {'type': 'toggle', 'title': 'Close Panel'}]},
+        {'type': 'toggle', 'title': 'Close Panel'}]},
       {'title': 'Actions', 'items': [
         {'type': 'divider', 'title': 'Workspace'},
         {'type': 'toggle', 'title': 'Verify'},
