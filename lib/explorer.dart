@@ -55,6 +55,7 @@ class CmdrExplorer extends Panel {
     mailbox.registerMessageHandler('BUILD_PACKAGES', _buildPackages);
     mailbox.registerMessageHandler('CREATE_PACKAGE', _createPackage);
     mailbox.registerMessageHandler('REQUEST_NODE_LIST', _launcherList);
+    mailbox.registerMessageHandler('REQUEST_RUNNING_NODES_LIST', _nodeList);
     mailbox.registerMessageHandler('RUN_NODE', _runLauncher);
     mailbox.registerMessageHandler('REQUEST_EDITOR_LIST', _requestEditorList);
     mailbox.registerMessageHandler('RETURN_SELECTED', _returnSelected);
@@ -304,6 +305,12 @@ class CmdrExplorer extends Panel {
     _currentWorkspace.listLaunchers().listen((Map launcher) {
       String data = JSON.encode(launcher);
       mailbox.send(new Msg('LAUNCH', data));
+    });
+  }
+
+  void _nodeList(String um) {
+    _currentWorkspace.listRunningNodes().then((List<Map> nodesList) {
+      mailbox.send(new Msg('RUNNING_NODES_LIST', JSON.encode(nodesList)));
     });
   }
 

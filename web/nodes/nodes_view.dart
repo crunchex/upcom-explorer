@@ -1,25 +1,25 @@
-part of updroid_explorer_launchers;
+part of updroid_explorer_nodes;
 
-class LaunchersView extends ExplorerView {
+class NodesView extends ExplorerView {
   /// Returns an initialized [PanelView] as a [Future] given all normal constructors.
   ///
   /// Use this instead of calling the constructor directly.
-  static Future<LaunchersView> createLaunchersView(int id, DivElement content) {
+  static Future<NodesView> createNodesView(int id, DivElement content) {
     Completer c = new Completer();
-    c.complete(new LaunchersView(id, content));
+    c.complete(new NodesView(id, content));
     return c.future;
   }
 
   ParagraphElement placeholderText;
   UListElement uList;
 
-  LaunchersView(int id, DivElement content) :
+  NodesView(int id, DivElement content) :
   super(id, content) {
     this.content = content;
 
     placeholderText = new ParagraphElement()
       ..classes.add('explorer-placeholder')
-      ..text = 'No Launchers found. Create one!';
+      ..text = 'No running nodes detected. Start one from the Launchers View!';
     explorersDiv.children.add(placeholderText);
 
     uList = new UListElement()
@@ -28,8 +28,8 @@ class LaunchersView extends ExplorerView {
 
     viewWorkspace.classes.remove('glyphicons-folder-open');
     viewWorkspace.classes.addAll(['glyphicons-folder-closed', 'inactive']);
-    viewNodes.classes.add('inactive');
-    viewLaunchers.classes.remove('inactive');
+    viewLaunchers.classes.add('inactive');
+    viewNodes.classes.remove('inactive');
   }
 
   void cleanUp() {
@@ -63,8 +63,8 @@ abstract class RosEntityView {
 
     filename = new SpanElement()
       ..classes.add('explorer-ros-name')
-      ..text = this.name.replaceAll('.launch', '')
-      ..title = this.name.replaceAll('.launch', '');
+      ..text = this.name
+      ..title = this.name;
     container.children.add(filename);
   }
 
@@ -86,60 +86,13 @@ abstract class RosEntityView {
   }
 }
 
-class PackageView extends RosEntityView {
-  final String openFolderClass = 'glyphicons-expand';
-  final String closedFolderClass = 'glyphicons-collapse';
-  final String iconClass = 'glyphicons-cluster';
-
-  bool expanded = false;
-  DivElement outerContainer;
-  SpanElement expanderIcon;
-  UListElement uElement;
-
-  PackageView(String name, [bool expanded]) : super(name) {
-    this.expanded = expanded;
-
-    outerContainer = new DivElement()
-      ..classes.add('explorer-ros-outer-container');
-    element.children.add(outerContainer);
-
-    expanderIcon = new SpanElement()
-      ..classes.addAll(['glyphicons', 'explorer-expander-icon']);
-    this.expanded ? expanderIcon.classes.add(openFolderClass) : expanderIcon.classes.add(closedFolderClass);
-    outerContainer.children.add(expanderIcon);
-
-    container.classes.add('explorer-package');
-    icon.classes.add(iconClass);
-    outerContainer.children.add(container);
-
-    uElement = new UListElement()
-      ..hidden = true
-      ..classes.add('explorer-ul');
-    element.children.add(uElement);
-  }
-
-  void toggleExpansion() {
-    if (expanded) {
-      icon.classes.remove(openFolderClass);
-      icon.classes.add(closedFolderClass);
-      uElement.hidden = true;
-      expanded = false;
-    } else {
-      icon.classes.remove(closedFolderClass);
-      icon.classes.add(openFolderClass);
-      uElement.hidden = false;
-      expanded = true;
-    }
-  }
-}
-
-class LauncherView extends RosEntityView {
-  final String fileClass = 'glyphicons-circle-arrow-right';
+class NodeView extends RosEntityView {
+  final String fileClass = 'glyphicons-turtle';
 
   bool expanded = false;
   UListElement uElement;
 
-  LauncherView(String name, List<List<String>> args, [bool expanded]) : super(name) {
+  NodeView(String name, List<List<String>> info, [bool expanded]) : super(name) {
     this.expanded = expanded;
 
     container.classes.add('explorer-node');
@@ -151,7 +104,7 @@ class LauncherView extends RosEntityView {
       ..classes.add('explorer-ul');
     element.children.add(uElement);
 
-    args.forEach((List<String> argument) {
+    info.forEach((List<String> argument) {
       LIElement li = new LIElement()
         ..classes.add('explorer-li');
       uElement.children.add(li);
@@ -161,15 +114,10 @@ class LauncherView extends RosEntityView {
         ..style.userSelect = 'none';
       li.children.add(container);
 
-      DivElement arg = new DivElement()
+      DivElement infoLine = new DivElement()
         ..classes.add('explorer-arg-name')
         ..text = argument[0];
-      container.children.add(arg);
-
-      InputElement argValue = new InputElement()
-        ..classes.add('explorer-arg-input');
-      if (argument[1] != null) argValue.placeholder = argument[1];
-      container.children.add(argValue);
+      container.children.add(infoLine);
     });
   }
 

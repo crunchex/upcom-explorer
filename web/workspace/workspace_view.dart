@@ -23,6 +23,7 @@ class WorkspaceView extends ExplorerView {
     viewWorkspace.classes.removeAll(['glyphicons-folder-closed', 'inactive']);
     viewWorkspace.classes.add('glyphicons-folder-open');
     viewLaunchers.classes.add('inactive');
+    viewNodes.classes.add('inactive');
   }
 
   void cleanUp() {
