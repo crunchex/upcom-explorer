@@ -17,7 +17,7 @@ class LaunchersController implements ExplorerController {
   PanelView _view;
   LaunchersView _launchersView;
   Mailbox _mailbox;
-  Function _toggleView;
+  Function _showWorkspaceView, _showNodesView;
 
   AnchorElement _runLaunchersButton;
 
@@ -26,11 +26,12 @@ class LaunchersController implements ExplorerController {
   Set<StreamSubscription> _listenersToCleanUp;
   bool _launchersFound;
 
-  LaunchersController(int id, this.workspacePath, PanelView view, Mailbox mailbox, List<AnchorElement> actionButtons, Function toggleView) {
+  LaunchersController(int id, this.workspacePath, PanelView view, Mailbox mailbox, List<AnchorElement> actionButtons, Function showWorkspaceView, Function showNodesView) {
     _view = view;
     _mailbox = mailbox;
     _runLaunchersButton = actionButtons[0];
-    _toggleView = toggleView;
+    _showWorkspaceView = showWorkspaceView;
+    _showNodesView = showNodesView;
 
     registerMailbox();
 
@@ -54,7 +55,8 @@ class LaunchersController implements ExplorerController {
 
   void registerEventHandlers() {
     _listenersToCleanUp.add(_runLaunchersButton.onClick.listen((e) => _runLaunchers()));
-    _listenersToCleanUp.add(_launchersView.viewWorkspace.onClick.listen((e) => _toggleView()));
+    _listenersToCleanUp.add(_launchersView.viewWorkspace.onClick.listen((e) => _showWorkspaceView()));
+    _listenersToCleanUp.add(_launchersView.viewNodes.onClick.listen((e) => _showNodesView()));
   }
 
   void addLaunch(Msg um) {

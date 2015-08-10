@@ -55,7 +55,11 @@ class CmdrExplorer extends Panel {
     mailbox.registerMessageHandler('BUILD_PACKAGES', _buildPackages);
     mailbox.registerMessageHandler('CREATE_PACKAGE', _createPackage);
     mailbox.registerMessageHandler('REQUEST_NODE_LIST', _launcherList);
+    mailbox.registerMessageHandler('REQUEST_RUNNING_NODES_LIST', _nodeList);
     mailbox.registerMessageHandler('RUN_NODE', _runLauncher);
+    mailbox.registerMessageHandler('STOP_NODE', _stopNode);
+    mailbox.registerMessageHandler('STOP_ALL', _stopAllNodes);
+
     mailbox.registerMessageHandler('REQUEST_EDITOR_LIST', _requestEditorList);
     mailbox.registerMessageHandler('RETURN_SELECTED', _returnSelected);
 
@@ -307,6 +311,12 @@ class CmdrExplorer extends Panel {
     });
   }
 
+  void _nodeList(String um) {
+    _currentWorkspace.listRunningNodes().then((List<Map> nodesList) {
+      mailbox.send(new Msg('RUNNING_NODES_LIST', JSON.encode(nodesList)));
+    });
+  }
+
   void _runLauncher(String um) {
     String data = um;
     List decodedData = JSON.decode(data);
@@ -315,6 +325,18 @@ class CmdrExplorer extends Panel {
     List nodeArgs = decodedData.sublist(2);
 
     _currentWorkspace.runNode(packageName, nodeName, nodeArgs);
+  }
+
+  void _stopNode(String um) {
+    String nodeName = um;
+
+    _currentWorkspace.killNodeFromString(nodeName)
+      .then((success) => mailbox.send(new Msg('STOP_DONE', '${success.toString()}:$nodeName')));
+  }
+
+  void _stopAllNodes(String um) {
+    _currentWorkspace.killAllNodes()
+      .then((success) => mailbox.send(new Msg('STOP_ALL_DONE', success.toString())));
   }
 
   void _requestEditorList(String um) {

@@ -10,6 +10,7 @@ import 'package:upcom-api/web/tab/panel_controller.dart';
 
 import 'workspace/workspace_controller.dart';
 import 'launchers/launchers_controller.dart';
+import 'nodes/nodes_controller.dart';
 
 part 'explorer_view.dart';
 
@@ -33,10 +34,13 @@ class UpDroidExplorer extends PanelController {
         {'type': 'toggle', 'title': 'Clean Workspace'},
 //        {'type': 'toggle', 'title': 'Upload with Git'},
         {'type': 'divider', 'title': 'Launchers'},
-        {'type': 'toggle', 'title': 'Run Launchers'}]},
+        {'type': 'toggle', 'title': 'Run Launchers'},
+        {'type': 'divider', 'title': 'Running Nodes'},
+        {'type': 'toggle', 'title': 'Stop All'}]},
       {'title': 'View', 'items': [
         {'type': 'toggle', 'title': 'Workspace'},
-        {'type': 'toggle', 'title': 'Launchers'}]}
+        {'type': 'toggle', 'title': 'Launchers'},
+        {'type': 'toggle', 'title': 'Running Nodes'}]}
     ];
     return menu;
   }
@@ -50,8 +54,10 @@ class UpDroidExplorer extends PanelController {
   AnchorElement _cleanWorkspaceButton;
 //  AnchorElement _uploadButton;
   AnchorElement _runLaunchersButton;
+  AnchorElement _stopAllButton;
   AnchorElement _workspaceButton;
   AnchorElement _launchersButton;
+  AnchorElement _nodesButton;
 
   StreamSubscription outsideClickListener;
   StreamSubscription controlLeave;
@@ -61,7 +67,7 @@ class UpDroidExplorer extends PanelController {
 
   List recycleListeners = [];
   StreamSubscription _fileDropdownListener, _newWorkspaceListener, _closeWorkspaceListener;
-  StreamSubscription _workspaceButtonListener, _launchersButtonListener;
+  StreamSubscription _workspaceButtonListener, _launchersButtonListener, _nodesButtonListener;
 
   ExplorerController controller;
 
@@ -84,9 +90,11 @@ class UpDroidExplorer extends PanelController {
     _cleanWorkspaceButton = view.refMap['clean-workspace'];
 //      _uploadButton = _view.refMap['upload-with-git'];
     _runLaunchersButton = view.refMap['run-launchers'];
+    _stopAllButton = view.refMap['stop-all'];
 
     _workspaceButton = view.refMap['workspace'];
     _launchersButton = view.refMap['launchers'];
+    _nodesButton = view.refMap['running-nodes'];
 
     _closeWorkspace();
   }
@@ -176,11 +184,14 @@ class UpDroidExplorer extends PanelController {
     _buildPackagesButton.classes.add('disabled');
     _cleanWorkspaceButton.classes.add('disabled');
     _runLaunchersButton.classes.add('disabled');
+    _stopAllButton.classes.add('disabled');
     _launchersButton.classes.add('disabled');
     _workspaceButton.classes.add('disabled');
+    _nodesButton.classes.add('disabled');
 
     if (_launchersButtonListener != null) _launchersButtonListener.cancel();
     if (_workspaceButtonListener != null) _workspaceButtonListener.cancel();
+    if (_nodesButtonListener != null) _nodesButtonListener.cancel();
 
     if (controller != null) {
       controller.cleanUp();
@@ -214,6 +225,7 @@ class UpDroidExplorer extends PanelController {
 
     // Disable buttons not applicable for Workspace View.
     _runLaunchersButton.classes.add('disabled');
+    _stopAllButton.classes.add('disabled');
     _workspaceButton.classes.add('disabled');
     if (_workspaceButtonListener != null) _workspaceButtonListener.cancel();
 
@@ -222,10 +234,12 @@ class UpDroidExplorer extends PanelController {
     _buildPackagesButton.classes.remove('disabled');
     _cleanWorkspaceButton.classes.remove('disabled');
     _launchersButton.classes.remove('disabled');
+    _nodesButton.classes.remove('disabled');
     _launchersButtonListener = _launchersButton.onClick.listen((e) => showLaunchersController());
+    _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_newPackageButton, _buildPackagesButton, _cleanWorkspaceButton];
-    controller = new WorkspaceController(id, workspacePath, view, mailbox, actionButtons, showLaunchersController);
+    controller = new WorkspaceController(id, workspacePath, view, mailbox, actionButtons, showLaunchersController, showNodesController);
   }
 
   void showLaunchersController() {
@@ -240,16 +254,46 @@ class UpDroidExplorer extends PanelController {
     _newPackageButton.classes.add('disabled');
     _buildPackagesButton.classes.add('disabled');
     _cleanWorkspaceButton.classes.add('disabled');
+    _stopAllButton.classes.add('disabled');
     _launchersButton.classes.add('disabled');
     if (_launchersButtonListener != null) _launchersButtonListener.cancel();
 
     // Re-enable buttons for Launchers View.
     _runLaunchersButton.classes.remove('disabled');
     _workspaceButton.classes.remove('disabled');
+    _nodesButton.classes.remove('disabled');
     _workspaceButtonListener = _workspaceButton.onClick.listen((e) => showWorkspacesController());
+    _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_runLaunchersButton];
-    controller = new LaunchersController(id, workspacePath, view, mailbox, actionButtons, showWorkspacesController);
+    controller = new LaunchersController(id, workspacePath, view, mailbox, actionButtons, showWorkspacesController, showNodesController);
+  }
+
+  void showNodesController() {
+    view.content.innerHtml = '';
+
+    if (controller != null) {
+      controller.cleanUp();
+      controller = null;
+    }
+
+    // Disable buttons not applicable for Launchers View.
+    _newPackageButton.classes.add('disabled');
+    _buildPackagesButton.classes.add('disabled');
+    _cleanWorkspaceButton.classes.add('disabled');
+    _runLaunchersButton.classes.add('disabled');
+    _nodesButton.classes.add('disabled');
+    if (_nodesButtonListener != null) _nodesButtonListener.cancel();
+
+    // Re-enable buttons for Launchers View.
+    _stopAllButton.classes.remove('disabled');
+    _workspaceButton.classes.remove('disabled');
+    _launchersButton.classes.remove('disabled');
+    _workspaceButtonListener = _workspaceButton.onClick.listen((e) => showWorkspacesController());
+    _launchersButtonListener = _launchersButton.onClick.listen((e) => showLaunchersController());
+
+    List<AnchorElement> actionButtons = [_stopAllButton];
+    controller = new NodesController(id, workspacePath, view, mailbox, actionButtons, showWorkspacesController, showLaunchersController);
   }
 
   // TODO: figure this out once the view is set up correctly.
@@ -267,6 +311,7 @@ class UpDroidExplorer extends PanelController {
     if (_closeWorkspaceListener != null) _closeWorkspaceListener.cancel();
     if (_workspaceButtonListener != null) _workspaceButtonListener.cancel();
     if (_launchersButtonListener != null) _launchersButtonListener.cancel();
+    if (_nodesButtonListener != null) _nodesButtonListener.cancel();
   }
 }
 
