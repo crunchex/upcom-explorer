@@ -57,6 +57,7 @@ class CmdrExplorer extends Panel {
     mailbox.registerMessageHandler('REQUEST_NODE_LIST', _launcherList);
     mailbox.registerMessageHandler('REQUEST_RUNNING_NODES_LIST', _nodeList);
     mailbox.registerMessageHandler('RUN_NODE', _runLauncher);
+    mailbox.registerMessageHandler('NODE_FROM_EDITOR', _addNodeToView);
     mailbox.registerMessageHandler('STOP_NODE', _stopNode);
     mailbox.registerMessageHandler('STOP_ALL', _stopAllNodes);
 
@@ -325,6 +326,10 @@ class CmdrExplorer extends Panel {
     List nodeArgs = decodedData.sublist(2);
 
     _currentWorkspace.runNode(packageName, nodeName, nodeArgs);
+  }
+
+  void _addNodeToView(String um) {
+    mailbox.send(new Msg('ADD_NODE', um));
   }
 
   void _stopNode(String um) {
