@@ -117,10 +117,12 @@
 .toolbar>span {
     float: right;
     padding: 0 5px 0 5px;
+    cursor: pointer;
 }
 
 .toolbar>span.inactive {
     color: #7e7e7e;
+    cursor: default;
 }
 
 .toolbar>span.glyphicons-folder-open {
