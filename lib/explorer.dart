@@ -313,7 +313,7 @@ class CmdrExplorer extends Panel {
   }
 
   void _nodeList(String um) {
-    _currentWorkspace.listRunningNodes().then((List<Map> nodesList) {
+    Ros.listRunningNodes().then((List<Map> nodesList) {
       mailbox.send(new Msg('RUNNING_NODES_LIST', JSON.encode(nodesList)));
     });
   }
