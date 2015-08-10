@@ -184,6 +184,7 @@ class UpDroidExplorer extends PanelController {
     _buildPackagesButton.classes.add('disabled');
     _cleanWorkspaceButton.classes.add('disabled');
     _runLaunchersButton.classes.add('disabled');
+    _stopAllButton.classes.add('disabled');
     _launchersButton.classes.add('disabled');
     _workspaceButton.classes.add('disabled');
     _nodesButton.classes.add('disabled');
@@ -235,7 +236,7 @@ class UpDroidExplorer extends PanelController {
     _launchersButton.classes.remove('disabled');
     _nodesButton.classes.remove('disabled');
     _launchersButtonListener = _launchersButton.onClick.listen((e) => showLaunchersController());
-    _nodesButtonListener = _nodesButton.onClick.listen((e) => showLaunchersController());
+    _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_newPackageButton, _buildPackagesButton, _cleanWorkspaceButton];
     controller = new WorkspaceController(id, workspacePath, view, mailbox, actionButtons, showLaunchersController, showNodesController);
@@ -262,7 +263,7 @@ class UpDroidExplorer extends PanelController {
     _workspaceButton.classes.remove('disabled');
     _nodesButton.classes.remove('disabled');
     _workspaceButtonListener = _workspaceButton.onClick.listen((e) => showWorkspacesController());
-    _nodesButtonListener = _nodesButton.onClick.listen((e) => showLaunchersController());
+    _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_runLaunchersButton];
     controller = new LaunchersController(id, workspacePath, view, mailbox, actionButtons, showWorkspacesController, showNodesController);
@@ -280,7 +281,7 @@ class UpDroidExplorer extends PanelController {
     _newPackageButton.classes.add('disabled');
     _buildPackagesButton.classes.add('disabled');
     _cleanWorkspaceButton.classes.add('disabled');
-    _runLaunchersButton.classes.remove('disabled');
+    _runLaunchersButton.classes.add('disabled');
     _nodesButton.classes.add('disabled');
     if (_nodesButtonListener != null) _nodesButtonListener.cancel();
 
