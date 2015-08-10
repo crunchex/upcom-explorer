@@ -50,6 +50,7 @@ class NodesController implements ExplorerController {
   void registerMailbox() {
     _mailbox.registerWebSocketEvent(EventType.ON_MESSAGE, 'RUNNING_NODES_LIST', refreshNodesList);
     _mailbox.registerWebSocketEvent(EventType.ON_MESSAGE, 'ADD_NODE', _addNodeToList);
+    _mailbox.registerWebSocketEvent(EventType.ON_MESSAGE, 'REMOVE_NODE', _removeNodeFromList);
     _mailbox.registerWebSocketEvent(EventType.ON_MESSAGE, 'STOP_DONE', _stopDone);
     _mailbox.registerWebSocketEvent(EventType.ON_MESSAGE, 'STOP_ALL_DONE', _stopAllDone);
   }
@@ -89,6 +90,14 @@ class NodesController implements ExplorerController {
     Node node = new Node(nodeName, [], _mailbox.ws, _deselectAllNodes);
     nodes[nodeName] = node;
     _nodesView.uList.children.add(node.view.element);
+  }
+
+  void _removeNodeFromList(Msg um) {
+    if (nodes == null) return;
+
+    String nodeName = um.body;
+    nodes[nodeName].cleanUp();
+    nodes.remove(nodeName);
   }
 
   void _stopNodes() {
