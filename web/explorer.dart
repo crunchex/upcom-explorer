@@ -68,7 +68,7 @@ class UpDroidExplorer extends PanelController {
   List<String> _workspaceNames;
 
   UpDroidExplorer() :
-  super(UpDroidExplorer.names, getMenuConfig(), 'tabs/upcom-explorer/explorer.css') {
+  super(UpDroidExplorer.names, getMenuConfig(), 'panels/upcom-explorer/explorer.css') {
 
   }
 
