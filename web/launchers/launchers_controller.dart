@@ -44,6 +44,12 @@ class LaunchersController implements ExplorerController {
       _mailbox.ws.send('[[REQUEST_NODE_LIST]]');
 
       registerEventHandlers();
+
+      // Allow 500 milliseconds for a single launcher to come through, otherwise
+      // present the placeholder text.
+      new Timer(new Duration(milliseconds: 500), () {
+        if (!_launchersFound) _launchersView.uList.replaceWith(_launchersView.placeholderText);
+      });
     });
   }
 
@@ -60,7 +66,6 @@ class LaunchersController implements ExplorerController {
   }
 
   void addLaunch(Msg um) {
-    if (!_launchersFound) _launchersView.placeholderText.replaceWith(_launchersView.uList);
     _launchersFound = true;
 
     Map data = JSON.decode(um.body);

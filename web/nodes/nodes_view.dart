@@ -10,21 +10,17 @@ class NodesView extends ExplorerView {
     return c.future;
   }
 
-  ParagraphElement placeholderText;
   UListElement uList;
 
   NodesView(int id, DivElement content) :
   super(id, content) {
     this.content = content;
 
-    placeholderText = new ParagraphElement()
-      ..classes.add('explorer-placeholder')
-      ..text = 'No running nodes detected. Start one from the Launchers View!';
-    explorersDiv.children.add(placeholderText);
+    placeholderText.text = 'No running nodes detected. Start one from the Launchers View!';
 
     uList = new UListElement()
       ..classes.add("explorer-ul");
-//    explorersDiv.append(uList);
+    explorersDiv.append(uList);
 
     viewWorkspace.classes.remove('glyphicons-folder-open');
     viewWorkspace.classes.addAll(['glyphicons-folder-closed', 'inactive']);

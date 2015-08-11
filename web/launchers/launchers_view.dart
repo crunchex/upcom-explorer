@@ -10,21 +10,17 @@ class LaunchersView extends ExplorerView {
     return c.future;
   }
 
-  ParagraphElement placeholderText;
   UListElement uList;
 
   LaunchersView(int id, DivElement content) :
   super(id, content) {
     this.content = content;
 
-    placeholderText = new ParagraphElement()
-      ..classes.add('explorer-placeholder')
-      ..text = 'No Launchers found. Create one!';
-    explorersDiv.children.add(placeholderText);
+    placeholderText.text = 'No Launchers found. Create one!';
 
     uList = new UListElement()
       ..classes.add("explorer-ul");
-//    explorersDiv.append(uList);
+    explorersDiv.append(uList);
 
     viewWorkspace.classes.remove('glyphicons-folder-open');
     viewWorkspace.classes.addAll(['glyphicons-folder-closed', 'inactive']);

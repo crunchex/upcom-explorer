@@ -3,6 +3,7 @@ part of updroid_explorer;
 abstract class ExplorerView {
   DivElement content, explorersDiv;
   SpanElement viewWorkspace, viewLaunchers, viewNodes;
+  ParagraphElement placeholderText;
 
   ExplorerView(int id, DivElement content) {
     this.content = content;
@@ -10,6 +11,12 @@ abstract class ExplorerView {
     explorersDiv = new DivElement()
       ..classes.add('exp-container');
     content.children.add(explorersDiv);
+
+    // Placeholder-text element is created, but must be explicitly
+    // presented where appropriate.
+    placeholderText = new ParagraphElement()
+      ..classes.add('explorer-placeholder');
+//    explorersDiv.children.add(placeholderText);
 
     DivElement toolbar = new DivElement()
       ..classes.add('toolbar');
