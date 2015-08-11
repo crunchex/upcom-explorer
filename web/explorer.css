@@ -1,14 +1,17 @@
 .upcom-explorer {
+    position: relative;
     height: 100%;
     background-color: #eaecec;
 }
 
 .explorer-placeholder {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     color: #7e7e7e;
-    padding: 100% 10px;
-    text-align: center;
-    height: 100%;
+    padding: 10px;
     margin: 0;
+    text-align: center;
     /*font-family: "Avenir Next LT Pro Regular";*/
     font-family:  "Monosten A", monospace;
 }
