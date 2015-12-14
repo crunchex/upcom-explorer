@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:upcom-api/web/modal/modal.dart';
 import 'package:upcom-api/web/mailbox/mailbox.dart';
-import 'package:upcom-api/web/tab/panel_controller.dart';
+import 'package:upcom-api/web/tab/tab_controller.dart';
 
 import 'workspace/workspace_controller.dart';
 import 'launchers/launchers_controller.dart';
@@ -16,7 +16,7 @@ part 'explorer_view.dart';
 
 /// [UpDroidConsole] is a client-side class that combines a [Terminal]
 /// and [WebSocket] into an UpDroid Commander tab.
-class UpDroidExplorer extends PanelController {
+class UpDroidExplorer extends TabController {
   static final List<String> names = ['upcom-explorer', 'UpDroid Explorer', 'Explorer'];
 
   static List getMenuConfig() {
@@ -74,7 +74,7 @@ class UpDroidExplorer extends PanelController {
   List<String> _workspaceNames;
 
   UpDroidExplorer() :
-  super(UpDroidExplorer.names, getMenuConfig(), 'panels/upcom-explorer/explorer.css') {
+  super(UpDroidExplorer.names, true, true, getMenuConfig()) {
 
   }
 
@@ -216,7 +216,7 @@ class UpDroidExplorer extends PanelController {
   }
 
   void showWorkspacesController() {
-    view.content.innerHtml = '';
+    content.innerHtml = '';
 
     if (controller != null) {
       controller.cleanUp();
@@ -239,7 +239,7 @@ class UpDroidExplorer extends PanelController {
     _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_newPackageButton, _buildPackagesButton, _cleanWorkspaceButton];
-    controller = new WorkspaceController(id, workspacePath, view, mailbox, actionButtons, showLaunchersController, showNodesController);
+    controller = new WorkspaceController(id, workspacePath, mailbox, actionButtons, showLaunchersController, showNodesController);
   }
 
   void showLaunchersController() {
@@ -266,11 +266,11 @@ class UpDroidExplorer extends PanelController {
     _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_runLaunchersButton];
-    controller = new LaunchersController(id, workspacePath, view, mailbox, actionButtons, showWorkspacesController, showNodesController);
+    controller = new LaunchersController(id, workspacePath, mailbox, actionButtons, showWorkspacesController, showNodesController);
   }
 
   void showNodesController() {
-    view.content.innerHtml = '';
+    content.innerHtml = '';
 
     if (controller != null) {
       controller.cleanUp();
@@ -293,11 +293,11 @@ class UpDroidExplorer extends PanelController {
     _launchersButtonListener = _launchersButton.onClick.listen((e) => showLaunchersController());
 
     List<AnchorElement> actionButtons = [_stopAllButton];
-    controller = new NodesController(id, workspacePath, view, mailbox, actionButtons, showWorkspacesController, showLaunchersController);
+    controller = new NodesController(id, workspacePath, mailbox, actionButtons, showWorkspacesController, showLaunchersController);
   }
 
   // TODO: figure this out once the view is set up correctly.
-  Element get elementToFocus => view.content.children[0];
+  Element get elementToFocus => content.children[0];
 
   Future<bool> preClose() {
     Completer c = new Completer();
