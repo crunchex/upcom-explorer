@@ -4,8 +4,8 @@ import 'dart:html';
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:path/path.dart' as pathLib;
-import 'package:upcom-api/tab_frontend.dart';
+import 'package:upcom-api/web/mailbox/mailbox.dart';
+import 'package:upcom-api/web/menu/context_menu.dart';
 import '../explorer.dart';
 
 part 'nodes_view.dart';
@@ -14,7 +14,6 @@ part 'ros_entity.dart';
 class NodesController implements ExplorerController {
   String type = 'nodes';
 
-  PanelView _view;
   NodesView _nodesView;
   Mailbox _mailbox;
   Function _showWorkspaceView, _showLaunchersView;
@@ -26,8 +25,7 @@ class NodesController implements ExplorerController {
   Set<StreamSubscription> _listenersToCleanUp;
   bool _nodesFound;
 
-  NodesController(int id, this.workspacePath, PanelView view, Mailbox mailbox, List<AnchorElement> actionButtons, Function showWorkspaceView, Function showLaunchersView) {
-    _view = view;
+  NodesController(int id, this.workspacePath, DivElement content, Mailbox mailbox, List<AnchorElement> actionButtons, Function showWorkspaceView, Function showLaunchersView) {
     _mailbox = mailbox;
     _stopNodesButton = actionButtons[0];
     _showWorkspaceView = showWorkspaceView;
@@ -38,7 +36,7 @@ class NodesController implements ExplorerController {
     _listenersToCleanUp = new Set<StreamSubscription>();
     _nodesFound = false;
 
-    NodesView.createNodesView(id, _view.content).then((nodesView) {
+    NodesView.createNodesView(id, content).then((nodesView) {
       _nodesView = nodesView;
 
       _mailbox.ws.send('[[REQUEST_RUNNING_NODES_LIST]]');

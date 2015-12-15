@@ -5,7 +5,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:path/path.dart' as pathLib;
-import 'package:upcom-api/tab_frontend.dart';
+import 'package:upcom-api/web/mailbox/mailbox.dart';
+import 'package:upcom-api/web/menu/context_menu.dart';
+import 'package:upcom-api/web/modal/modal.dart';
 
 import '../explorer.dart';
 
@@ -15,7 +17,6 @@ part 'fs_entity.dart';
 class WorkspaceController implements ExplorerController {
   String type = 'workspace';
 
-  PanelView _view;
   WorkspaceView _workspaceView;
   Mailbox _mailbox;
   Function _showLaunchersView, _showNodesView;
@@ -29,8 +30,7 @@ class WorkspaceController implements ExplorerController {
   String workspacePath;
   Set<StreamSubscription> _listenersToCleanUp;
 
-  WorkspaceController(int id, this.workspacePath, PanelView view, Mailbox mailbox, List<AnchorElement> actionButtons, Function showLaunchersView, Function showNodesView) {
-    _view = view;
+  WorkspaceController(int id, this.workspacePath, DivElement content, Mailbox mailbox, List<AnchorElement> actionButtons, Function showLaunchersView, Function showNodesView) {
     _mailbox = mailbox;
     _newPackageButton = actionButtons[0];
     _buildPackagesButton = actionButtons[1];
@@ -42,7 +42,7 @@ class WorkspaceController implements ExplorerController {
 
     _listenersToCleanUp = new Set<StreamSubscription>();
 
-    WorkspaceView.createWorkspaceView(id, _view.content).then((workspaceView) {
+    WorkspaceView.createWorkspaceView(id, content).then((workspaceView) {
       _workspaceView = workspaceView;
 
       _mailbox.ws.send('[[REQUEST_WORKSPACE_CONTENTS]]');

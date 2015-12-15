@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:upcom-api/web/modal/modal.dart';
 import 'package:upcom-api/web/mailbox/mailbox.dart';
 import 'package:upcom-api/web/tab/tab_controller.dart';
+import 'package:upcom-api/web/menu/plugin_menu.dart';
 
 import 'workspace/workspace_controller.dart';
 import 'launchers/launchers_controller.dart';
@@ -74,27 +75,27 @@ class UpDroidExplorer extends TabController {
   List<String> _workspaceNames;
 
   UpDroidExplorer() :
-  super(UpDroidExplorer.names, true, true, getMenuConfig()) {
+  super(UpDroidExplorer.names, true, false, getMenuConfig()) {
 
   }
 
   void setUpController() {
-    _fileDropdown = view.refMap['file-dropdown'];
+    _fileDropdown = refMap['File'];
 
-    _newWorkspaceButton = view.refMap['new-workspace'];
+    _newWorkspaceButton = refMap['New Workspace'];
 //    _closeWorkspaceButton = view.refMap['close-workspace'];
 //    _deleteWorkspaceButton = view.refMap['delete-workspace'];
 
-    _newPackageButton = view.refMap['new-package'];
-    _buildPackagesButton = view.refMap['verify'];
-    _cleanWorkspaceButton = view.refMap['clean-workspace'];
+    _newPackageButton = refMap['New Package'];
+    _buildPackagesButton = refMap['Verify'];
+    _cleanWorkspaceButton = refMap['Clean Workspace'];
 //      _uploadButton = _view.refMap['upload-with-git'];
-    _runLaunchersButton = view.refMap['run-launchers'];
-    _stopAllButton = view.refMap['stop-all'];
+    _runLaunchersButton = refMap['Run Launchers'];
+    _stopAllButton = refMap['Stop All'];
 
-    _workspaceButton = view.refMap['workspace'];
-    _launchersButton = view.refMap['launchers'];
-    _nodesButton = view.refMap['running-nodes'];
+    _workspaceButton = refMap['Workspace'];
+    _launchersButton = refMap['Launchers'];
+    _nodesButton = refMap['Running Nodes'];
 
     _closeWorkspace();
   }
@@ -112,14 +113,14 @@ class UpDroidExplorer extends TabController {
 
   void _explorerDirPath(Msg um) {
     workspacePath = um.body;
-    showWorkspacesController();
+//    showWorkspacesController();
   }
 
   void _refreshOpenMenu(Msg um) {
     _workspaceNames = JSON.decode(um.body);
     _workspaceNames.forEach((String name) => _addWorkspaceToMenu(name));
 
-    if (controller != null || view.content.children.isNotEmpty) return;
+    if (controller != null || content.children.isNotEmpty) return;
 
     if (_workspaceNames.length == 1) _openExistingWorkspace(_workspaceNames.first);
 
@@ -130,7 +131,7 @@ class UpDroidExplorer extends TabController {
       ..classes.add('explorer-placeholder')
       ..text = _workspaceNames == null || _workspaceNames.isEmpty ? noWorkspaces : noOpenWorkspaces;
 
-    view.content.children.add(placeholderText);
+    content.children.add(placeholderText);
   }
 
   /// Returns an empty list to the server to let it know that there is no [WorkspaceController]
@@ -147,8 +148,8 @@ class UpDroidExplorer extends TabController {
   }
 
   void _addWorkspaceToMenu(String name) {
-    view.addMenuItem({'type': 'toggle', 'title': name}, '#$refName-$id-open-workspace');
-    AnchorElement item = view.refMap[name];
+    addMenuItem(id, refName, {'type': 'toggle', 'title': name}, '#$refName-$id-open-workspace');
+    AnchorElement item = refMap[name];
     item.onClick.listen((e) {
       _openExistingWorkspace(name);
     });
@@ -239,11 +240,11 @@ class UpDroidExplorer extends TabController {
     _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_newPackageButton, _buildPackagesButton, _cleanWorkspaceButton];
-    controller = new WorkspaceController(id, workspacePath, mailbox, actionButtons, showLaunchersController, showNodesController);
+    controller = new WorkspaceController(id, workspacePath, content, mailbox, actionButtons, showLaunchersController, showNodesController);
   }
 
   void showLaunchersController() {
-    view.content.innerHtml = '';
+    content.innerHtml = '';
 
     if (controller != null) {
       controller.cleanUp();
@@ -266,7 +267,7 @@ class UpDroidExplorer extends TabController {
     _nodesButtonListener = _nodesButton.onClick.listen((e) => showNodesController());
 
     List<AnchorElement> actionButtons = [_runLaunchersButton];
-    controller = new LaunchersController(id, workspacePath, mailbox, actionButtons, showWorkspacesController, showNodesController);
+    controller = new LaunchersController(id, workspacePath, content, mailbox, actionButtons, showWorkspacesController, showNodesController);
   }
 
   void showNodesController() {
@@ -293,7 +294,7 @@ class UpDroidExplorer extends TabController {
     _launchersButtonListener = _launchersButton.onClick.listen((e) => showLaunchersController());
 
     List<AnchorElement> actionButtons = [_stopAllButton];
-    controller = new NodesController(id, workspacePath, mailbox, actionButtons, showWorkspacesController, showLaunchersController);
+    controller = new NodesController(id, workspacePath, content, mailbox, actionButtons, showWorkspacesController, showLaunchersController);
   }
 
   // TODO: figure this out once the view is set up correctly.
