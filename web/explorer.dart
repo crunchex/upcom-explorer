@@ -77,7 +77,7 @@ class UpDroidExplorer extends TabController {
   List<String> _workspaceNames;
 
   UpDroidExplorer() :
-  super(UpDroidExplorer.names, true, false, getMenuConfig()) {
+  super(UpDroidExplorer.names, false, false, getMenuConfig()) {
 
   }
 
