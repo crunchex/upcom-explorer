@@ -113,7 +113,7 @@ class UpDroidExplorer extends TabController {
 
   void _explorerDirPath(Msg um) {
     workspacePath = um.body;
-//    showWorkspacesController();
+    showWorkspacesController();
   }
 
   void _refreshOpenMenu(Msg um) {
@@ -148,7 +148,7 @@ class UpDroidExplorer extends TabController {
   }
 
   void _addWorkspaceToMenu(String name) {
-    addMenuItem(id, refName, {'type': 'toggle', 'title': name}, '#$refName-$id-open-workspace');
+    addMenuItem(id, refName, {'type': 'toggle', 'title': name}, refMap, '#$refName-$id-open-workspace');
     AnchorElement item = refMap[name];
     item.onClick.listen((e) {
       _openExistingWorkspace(name);
