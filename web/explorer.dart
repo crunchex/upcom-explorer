@@ -47,6 +47,7 @@ class UpDroidExplorer extends TabController {
   }
 
   AnchorElement _fileDropdown;
+  AnchorElement _closePanelButton;
   AnchorElement _newWorkspaceButton;
 //  AnchorElement _closeWorkspaceButton;
 //  AnchorElement _deleteWorkspaceButton;
@@ -67,6 +68,7 @@ class UpDroidExplorer extends TabController {
   Map runParams = {};
 
   List recycleListeners = [];
+  StreamSubscription _closePanelListener;
   StreamSubscription _fileDropdownListener, _newWorkspaceListener, _closeWorkspaceListener;
   StreamSubscription _workspaceButtonListener, _launchersButtonListener, _nodesButtonListener;
 
@@ -81,6 +83,7 @@ class UpDroidExplorer extends TabController {
 
   void setUpController() {
     _fileDropdown = refMap['File'];
+    _closePanelButton = refMap['Close Panel'];
 
     _newWorkspaceButton = refMap['New Workspace'];
 //    _closeWorkspaceButton = view.refMap['close-workspace'];
@@ -159,6 +162,7 @@ class UpDroidExplorer extends TabController {
 
   void registerEventHandlers() {
     _fileDropdownListener = _fileDropdown.onClick.listen((e) => _refreshWorkspaceNames());
+    _closePanelListener = _closePanelButton.onClick.listen((e) => closeTab());
     _newWorkspaceListener = _newWorkspaceButton.onClick.listen((e) => _newWorkspace());
 //    _closeWorkspaceListener = _closeWorkspaceButton.onClick.listen((e) => _closeWorkspace());
   }
